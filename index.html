@@ -89,7 +89,26 @@
       .header-actions {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 12px;
+      }
+
+      .askbob-link {
+        display: inline-flex;
+        align-items: center;
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+      }
+
+      .askbob-link:focus-visible {
+        outline: 2px solid var(--ruoff-teal);
+        outline-offset: 2px;
+      }
+
+      .askbob-logo {
+        height: 32px;
+        width: auto;
+        display: block;
+        border-radius: var(--radius-sm);
       }
 
       .btn {
@@ -175,6 +194,9 @@
         .brand-logo {
           height: 32px;
         }
+        .askbob-logo {
+          height: 26px;
+        }
       }
     </style>
   </head>
@@ -191,8 +213,20 @@
         </a>
 
         <div class="header-actions">
-          <a class="btn btn-ghost" href="https://www.ruoff.com/">Ruoff.com</a>
-          <a class="btn btn-primary" href="#get-started">Get started</a>
+          <a
+            class="askbob-link"
+            href="https://www.askbobai.com"
+            aria-label="AskBobAI"
+          >
+            <img
+              class="askbob-logo"
+              src="assets/askbobai-logo.png"
+              alt="AskBobAI"
+            />
+          </a>
+          <button class="btn btn-primary" type="button" id="reset-btn">
+            Reset
+          </button>
         </div>
       </header>
 
@@ -213,6 +247,11 @@
 
     <script>
       document.getElementById("year").textContent = new Date().getFullYear();
+      document
+        .getElementById("reset-btn")
+        .addEventListener("click", function () {
+          window.location.reload();
+        });
     </script>
   </body>
 </html>
