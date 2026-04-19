@@ -81,21 +81,9 @@
       }
 
       .brand-logo {
-        height: 36px;
+        height: 40px;
         width: auto;
         display: block;
-      }
-
-      .brand-wordmark {
-        font-weight: 700;
-        font-size: 18px;
-        letter-spacing: 0.2px;
-      }
-
-      .brand-wordmark .brand-accent {
-        color: var(--text-muted);
-        font-weight: 500;
-        margin-left: 6px;
       }
 
       .header-actions {
@@ -184,8 +172,8 @@
         .container {
           padding: 24px 16px 32px;
         }
-        .brand-wordmark .brand-accent {
-          display: none;
+        .brand-logo {
+          height: 32px;
         }
       }
     </style>
@@ -194,27 +182,12 @@
     <div class="app">
       <header class="site-header" role="banner">
         <a class="brand" href="https://www.ruoff.com/" aria-label="Ruoff Mortgage">
-          <!-- Ruoff stepping-stone mark with pitched-roof nod; swap for official asset if needed. -->
-          <svg
+          <img
             class="brand-logo"
-            viewBox="0 0 44 44"
-            role="img"
-            aria-hidden="true"
-            focusable="false"
-          >
-            <rect width="44" height="44" rx="10" fill="#132e42" />
-            <path
-              d="M12 28 L22 14 L32 28 Z"
-              fill="none"
-              stroke="#ffffff"
-              stroke-width="2.4"
-              stroke-linejoin="round"
-            />
-            <circle cx="22" cy="31.5" r="2.4" fill="#ffffff" />
-          </svg>
-          <span class="brand-wordmark">
-            Ruoff<span class="brand-accent">Ask</span>
-          </span>
+            src="assets/ruoff-logo.png"
+            alt="Ruoff Mortgage"
+            style="height: 70px"
+          />
         </a>
 
         <div class="header-actions">
