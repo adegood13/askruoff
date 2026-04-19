@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ask Ruoff</title>
+    <meta
+      name="description"
+      content="Ask Ruoff — instant, grounded answers on mortgage guidelines, overlays, and policy."
+    />
+    <link rel="icon" href="https://www.ruoff.com/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ruoff-navy: #132e42;
+        --ruoff-navy-80: #1c4057;
+        --ruoff-teal: #1f8a9d;
+        --surface: #ffffff;
+        --surface-muted: #f7f8fa;
+        --border: #e6e8ec;
+        --text: #11202d;
+        --text-muted: #5a6773;
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 20px;
+        --shadow-sm: 0 1px 2px rgba(19, 46, 66, 0.06);
+        --header-height: 64px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Helvetica, Arial, sans-serif;
+        color: var(--text);
+        background: var(--surface-muted);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        line-height: 1.5;
+      }
+
+      .app {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        height: var(--header-height);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: var(--ruoff-navy);
+      }
+
+      .brand-logo {
+        height: 36px;
+        width: auto;
+        display: block;
+      }
+
+      .brand-wordmark {
+        font-weight: 700;
+        font-size: 18px;
+        letter-spacing: 0.2px;
+      }
+
+      .brand-wordmark .brand-accent {
+        color: var(--text-muted);
+        font-weight: 500;
+        margin-left: 6px;
+      }
+
+      .header-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 36px;
+        padding: 0 14px;
+        border-radius: var(--radius-sm);
+        border: 1px solid transparent;
+        font: inherit;
+        font-weight: 500;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background 120ms ease, border-color 120ms ease,
+          color 120ms ease;
+      }
+
+      .btn-ghost {
+        color: var(--text);
+        background: transparent;
+        border-color: var(--border);
+      }
+
+      .btn-ghost:hover {
+        background: var(--surface-muted);
+      }
+
+      .btn-primary {
+        color: #fff;
+        background: var(--ruoff-navy);
+        border-color: var(--ruoff-navy);
+      }
+
+      .btn-primary:hover {
+        background: var(--ruoff-navy-80);
+        border-color: var(--ruoff-navy-80);
+      }
+
+      .main {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 820px;
+        padding: 40px 24px 48px;
+        margin: 0 auto;
+      }
+
+      /* Injection slot — leave empty; content will be rendered here later. */
+      #content-slot {
+        min-height: calc(
+          100vh - var(--header-height) - var(--footer-height, 56px) - 88px
+        );
+      }
+
+      .site-footer {
+        --footer-height: 56px;
+        height: var(--footer-height);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 24px;
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+
+      @media (max-width: 640px) {
+        .site-header {
+          padding: 0 16px;
+        }
+        .container {
+          padding: 24px 16px 32px;
+        }
+        .brand-wordmark .brand-accent {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header class="site-header" role="banner">
+        <a class="brand" href="https://www.ruoff.com/" aria-label="Ruoff Mortgage">
+          <!-- Ruoff stepping-stone mark with pitched-roof nod; swap for official asset if needed. -->
+          <svg
+            class="brand-logo"
+            viewBox="0 0 44 44"
+            role="img"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <rect width="44" height="44" rx="10" fill="#132e42" />
+            <path
+              d="M12 28 L22 14 L32 28 Z"
+              fill="none"
+              stroke="#ffffff"
+              stroke-width="2.4"
+              stroke-linejoin="round"
+            />
+            <circle cx="22" cy="31.5" r="2.4" fill="#ffffff" />
+          </svg>
+          <span class="brand-wordmark">
+            Ruoff<span class="brand-accent">Ask</span>
+          </span>
+        </a>
+
+        <div class="header-actions">
+          <a class="btn btn-ghost" href="https://www.ruoff.com/">Ruoff.com</a>
+          <a class="btn btn-primary" href="#get-started">Get started</a>
+        </div>
+      </header>
+
+      <main class="main" role="main">
+        <div class="container">
+          <!--
+            Intentionally empty.
+            Downstream code will mount the chat/GPT experience into #content-slot.
+          -->
+          <div id="content-slot" aria-live="polite"></div>
+        </div>
+      </main>
+
+      <footer class="site-footer" role="contentinfo">
+        <span>&copy; <span id="year"></span> Ruoff Mortgage. All rights reserved.</span>
+      </footer>
+    </div>
+
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>
