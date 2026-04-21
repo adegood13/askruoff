@@ -225,11 +225,20 @@
 
       <main class="main" role="main">
         <div class="container">
-          <!--
-            Intentionally empty.
-            Downstream code will mount the chat/GPT experience into #content-slot.
-          -->
-          <div id="content-slot" aria-live="polite"></div>
+          <div id="content-slot" aria-live="polite">
+            <!-- Slot divs — the AskBob SDK finds them by ID. Wrapped in a common
+                 parent to enable layout detection, CSS token scoping, and the
+                 loading skeleton. -->
+            <div id="my-askbob-widget">
+              <h2 class="askbob-title" style="display:none">
+                Ask me anything about agency guidelines...
+              </h2>
+              <div id="askbob-primary-input"></div>
+              <div id="askbob-trending-questions"></div>
+              <div id="askbob-answer-canvas"></div>
+              <div id="askbob-follow-up-input"></div>
+            </div>
+          </div>
         </div>
       </main>
 
