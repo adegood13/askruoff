@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- build: merged-design-v4 -->
+    <!-- build: spec-aligned-v5 -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Ask Ruoff</title>
@@ -29,7 +29,6 @@
         --radius-sm: 8px;
         --radius-md: 12px;
         --radius-lg: 20px;
-        --shadow-sm: 0 1px 2px rgba(19, 46, 66, 0.06);
         --header-height: 80px;
       }
 
@@ -188,51 +187,6 @@
           height: 26px;
         }
       }
-
-      /* Debug banner — confirms the deployed build and surfaces SDK state. */
-      .debug-banner {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 2147483647;
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        padding: 12px 16px;
-        background: #ff9800;
-        color: #1a1a1a;
-        font-size: 13px;
-        line-height: 1.4;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-        font-family: "Inter", system-ui, sans-serif;
-      }
-      .debug-banner[data-state="ok"] {
-        background: #2e7d32;
-        color: #fff;
-      }
-      .debug-banner[data-state="error"] {
-        background: #c62828;
-        color: #fff;
-      }
-      .debug-banner[hidden] {
-        display: none;
-      }
-      .debug-banner strong {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 2px;
-      }
-      .debug-banner .debug-close {
-        margin-left: auto;
-        background: transparent;
-        border: 0;
-        color: inherit;
-        font-size: 18px;
-        line-height: 1;
-        cursor: pointer;
-        padding: 0 4px;
-      }
     </style>
   </head>
   <body>
@@ -272,7 +226,7 @@
       <main class="main" role="main">
         <div class="container">
           <div id="content-slot" aria-live="polite">
-            <!-- AskBob SDK mounts into these slots by ID. -->
+            <!-- AskBob slot divs — the SDK finds them by ID. -->
             <div id="my-askbob-widget">
               <h2 class="askbob-title" style="display: none">
                 Ask me anything about agency guidelines...
@@ -294,27 +248,6 @@
       </footer>
     </div>
 
-    <div
-      id="debug-banner"
-      class="debug-banner"
-      data-state="info"
-      role="status"
-      aria-live="polite"
-    >
-      <div>
-        <strong id="debug-title">Loading AskBob engine…</strong>
-        <span id="debug-detail">Waiting for engine.js to load.</span>
-      </div>
-      <button
-        type="button"
-        class="debug-close"
-        aria-label="Dismiss debug banner"
-        onclick="document.getElementById('debug-banner').hidden = true"
-      >
-        ×
-      </button>
-    </div>
-
     <script>
       document.getElementById("year").textContent = new Date().getFullYear();
       document.getElementById("reset-btn").addEventListener("click", () => {
@@ -333,70 +266,51 @@
       async
     ></script>
 
+    <!--
+      Option A — AskBob.init() (recommended per spec).
+      Wait for the engine script to load, then initialize the widget.
+    -->
     <script>
-      (function () {
-        var banner = document.getElementById("debug-banner");
-        var titleEl = document.getElementById("debug-title");
-        var detailEl = document.getElementById("debug-detail");
-        function setBanner(state, title, detail) {
-          banner.dataset.state = state;
-          titleEl.textContent = title;
-          detailEl.textContent = detail;
-        }
-
-        var script = document.querySelector(
+      (async () => {
+        const script = document.querySelector(
           'script[src*="askbobai.com/engine.js"]'
         );
-        if (script) {
-          script.addEventListener("load", function () {
-            setBanner(
-              "info",
-              "engine.js loaded",
-              "typeof window.AskBob = " + typeof window.AskBob
-            );
-          });
-          script.addEventListener("error", function () {
-            setBanner(
-              "error",
-              "engine.js FAILED to load",
-              "Check DevTools → Network for engine.js status."
-            );
-          });
-        }
+        if (!script) return;
 
-        var start = Date.now();
-        var poll = setInterval(function () {
-          var slotInput = document.getElementById("askbob-primary-input");
-          var slotCanvas = document.getElementById("askbob-answer-canvas");
-          var populated =
-            (slotInput && slotInput.children.length > 0) ||
-            (slotCanvas && slotCanvas.children.length > 0);
-          if (populated) {
-            setBanner(
-              "ok",
-              "Widget rendered into slots",
-              "primary-input children: " +
-                (slotInput ? slotInput.children.length : 0) +
-                ", answer-canvas children: " +
-                (slotCanvas ? slotCanvas.children.length : 0)
-            );
-            setTimeout(function () {
-              banner.hidden = true;
-            }, 4000);
-            clearInterval(poll);
-            return;
-          }
-          if (Date.now() - start > 20000) {
-            setBanner(
-              "error",
-              "Slots still empty after 20s",
-              "window.AskBob = " +
-                typeof window.AskBob +
-                ". Tenant may be blocking this origin, or widget is rendering elsewhere."
-            );
-            clearInterval(poll);
-          }
-        }, 500);
+        await new Promise((resolve, reject) => {
+          if (window.AskBob) return resolve();
+          script.addEventListener("load", resolve, { once: true });
+          script.addEventListener("error", reject, { once: true });
+        });
+
+        const instance = await AskBob.init({
+          chatbotUid: "e0ba5b3a-082b-47a0-b0f1-ec99b1038948",
+          clientUid: "d9dc6f59-def7-4127-b231-e9d94ce630b5",
+          tenantUid: "d52e359e-2d7e-4579-bd2e-87e60dfc2f77",
+          tenantUrl: "https://ruoff-mortgage.askbobai.com",
+          mode: "embedded",
+        });
+
+        instance.on("ready", () => console.log("Widget ready"));
+        instance.on("message:sent", (e) =>
+          console.log("User asked:", e.data.question)
+        );
+        instance.on("streaming:complete", (e) => {
+          console.log("Answer:", e.data.fullAnswer);
+          console.log("Conversation ID:", e.data.conversationId);
+        });
+        instance.on("conversation:start", (e) => {
+          localStorage.setItem("lastConversationId", e.data.conversationId);
+        });
+        instance.on("share:loaded", (e) =>
+          console.log("Shared conversation:", e.data.conversationId)
+        );
+        instance.on("share:not_found", () =>
+          console.warn("Shared conversation not found")
+        );
+
+        await instance.init();
+        window.askBobInstance = instance;
       })();
     </script>
   </body>
