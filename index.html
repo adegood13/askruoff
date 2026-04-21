@@ -188,6 +188,51 @@
           display: none;
         }
       }
+
+      /* Debug banner — surfaces SDK load/init state so we don't need DevTools. */
+      .debug-banner {
+        position: fixed;
+        left: 50%;
+        bottom: 72px;
+        transform: translateX(-50%);
+        max-width: min(92vw, 640px);
+        z-index: 50;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 14px;
+        border-radius: var(--radius-md);
+        background: #0f1a24;
+        color: #e8eef5;
+        font-size: 13px;
+        line-height: 1.45;
+        box-shadow: 0 6px 24px rgba(15, 26, 36, 0.25);
+        font-family: "Inter", system-ui, sans-serif;
+      }
+      .debug-banner[data-state="ok"] {
+        background: #0d5c3f;
+      }
+      .debug-banner[data-state="error"] {
+        background: #7a1a1a;
+      }
+      .debug-banner strong {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 2px;
+      }
+      .debug-banner .debug-close {
+        margin-left: auto;
+        background: transparent;
+        border: 0;
+        color: inherit;
+        font-size: 18px;
+        line-height: 1;
+        cursor: pointer;
+        padding: 0 4px;
+      }
+      .debug-banner[hidden] {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -247,6 +292,27 @@
       </footer>
     </div>
 
+    <div
+      id="debug-banner"
+      class="debug-banner"
+      data-state="info"
+      role="status"
+      aria-live="polite"
+    >
+      <div>
+        <strong id="debug-title">Loading AskBob engine…</strong>
+        <span id="debug-detail">Waiting for engine.js to load.</span>
+      </div>
+      <button
+        type="button"
+        class="debug-close"
+        aria-label="Dismiss debug banner"
+        onclick="document.getElementById('debug-banner').hidden = true"
+      >
+        ×
+      </button>
+    </div>
+
     <script>
       document.getElementById("year").textContent = new Date().getFullYear();
     </script>
@@ -265,27 +331,69 @@
     <!-- Initialize the AskBob widget once the engine has loaded. -->
     <script>
       (async () => {
+        const banner = document.getElementById("debug-banner");
+        const titleEl = document.getElementById("debug-title");
+        const detailEl = document.getElementById("debug-detail");
+        const setBanner = (state, title, detail) => {
+          banner.dataset.state = state;
+          titleEl.textContent = title;
+          detailEl.textContent = detail;
+        };
+
+        // Watch the engine script for load/error events.
+        const engineScript = document.querySelector(
+          'script[src*="askbobai.com/engine.js"]'
+        );
+        if (engineScript) {
+          engineScript.addEventListener("error", () => {
+            setBanner(
+              "error",
+              "engine.js failed to load",
+              "Network or CORS error fetching https://ruoff-mortgage.askbobai.com/engine.js — check DevTools → Network."
+            );
+          });
+        }
+
         const start = Date.now();
         while (!window.AskBob && Date.now() - start < 15000) {
           await new Promise((r) => setTimeout(r, 50));
         }
         if (!window.AskBob) {
+          setBanner(
+            "error",
+            "AskBob engine did not initialize",
+            "Engine script loaded, but window.AskBob is undefined after 15s. Tenant may be blocking this origin."
+          );
           console.error("AskBob engine failed to load");
           return;
         }
-        const instance = await AskBob.init({
-          chatbotUid: "e0ba5b3a-082b-47a0-b0f1-ec99b1038948",
-          clientUid: "d9dc6f59-def7-4127-b231-e9d94ce630b5",
-          tenantUid: "d52e359e-2d7e-4579-bd2e-87e60dfc2f77",
-          tenantUrl: "https://ruoff-mortgage.askbobai.com",
-          mode: "embedded",
-          theme: {
-            "--askbob-color-primary": "#132e42",
-            "--askbob-color-surface": "#ffffff",
-            "--askbob-wrapper-shadow": "none",
-            "--askbob-radius": "8px",
-          },
-        });
+
+        setBanner(
+          "info",
+          "Engine loaded, initializing widget…",
+          "Calling AskBob.init() with tenant config."
+        );
+
+        let instance;
+        try {
+          instance = await AskBob.init({
+            chatbotUid: "e0ba5b3a-082b-47a0-b0f1-ec99b1038948",
+            clientUid: "d9dc6f59-def7-4127-b231-e9d94ce630b5",
+            tenantUid: "d52e359e-2d7e-4579-bd2e-87e60dfc2f77",
+            tenantUrl: "https://ruoff-mortgage.askbobai.com",
+            mode: "embedded",
+            theme: {
+              "--askbob-color-primary": "#132e42",
+              "--askbob-color-surface": "#ffffff",
+              "--askbob-wrapper-shadow": "none",
+              "--askbob-radius": "8px",
+            },
+          });
+        } catch (err) {
+          setBanner("error", "AskBob.init() threw", String(err && err.message || err));
+          console.error(err);
+          return;
+        }
 
         // ── Events ─────────────────────────────────────────
         instance.on("message:sent", (event) => {
@@ -313,8 +421,23 @@
           console.log(event.event, event.data);
         });
 
-        await instance.init();
+        try {
+          await instance.init();
+        } catch (err) {
+          setBanner("error", "instance.init() threw", String(err && err.message || err));
+          console.error(err);
+          return;
+        }
+
         window.askBobInstance = instance;
+        setBanner(
+          "ok",
+          "AskBob ready",
+          "Widget mounted. Dismiss this banner with ×."
+        );
+        setTimeout(() => {
+          if (banner.dataset.state === "ok") banner.hidden = true;
+        }, 4000);
       })();
     </script>
   </body>
