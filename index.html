@@ -674,7 +674,7 @@
           "--askbob-modal-preview-height",
         ];
 
-        const SKIP_IDS = new Set(["chatbot-container", "chatbot-loader"]);
+        const SKIP_IDS = new Set(["chatbot-container", "theme-switcher"]);
 
         function syncVars(target) {
           const container = document.getElementById("chatbot-container");
@@ -708,10 +708,13 @@
       })();
     </script>
 
-    <!-- Share-link marker (lets CSS hide subtitle on ?abaic= / /abaic/ pages) -->
+    <!-- Container hint + share-link marker (runs before the SDK loads) -->
     <script>
       (function () {
         const urlParams = new URLSearchParams(window.location.search);
+        const container = urlParams.get("container") || "auto";
+        window.__ASKBOB_CONTAINER__ = container;
+
         const abaicFromQuery = urlParams.get("abaic");
         const abaicPathMatch = window.location.pathname.match(
           /\/abaic\/([^/]+)/
