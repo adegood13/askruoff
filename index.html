@@ -250,5 +250,39 @@
     <script>
       document.getElementById("year").textContent = new Date().getFullYear();
     </script>
+
+    <!-- AskBob embed — do not modify the script tag. -->
+    <script
+      src="https://ruoff-mortgage.askbobai.com/engine.js"
+      data-chatbot-uid="e0ba5b3a-082b-47a0-b0f1-ec99b1038948"
+      data-tenant-uid="d52e359e-2d7e-4579-bd2e-87e60dfc2f77"
+      data-client-uid="d9dc6f59-def7-4127-b231-e9d94ce630b5"
+      data-url="https://ruoff-mortgage.askbobai.com"
+      data-mode="embedded"
+      async
+    ></script>
+
+    <!-- Initialize the AskBob widget once the engine has loaded. -->
+    <script>
+      (async () => {
+        const start = Date.now();
+        while (!window.AskBob && Date.now() - start < 15000) {
+          await new Promise((r) => setTimeout(r, 50));
+        }
+        if (!window.AskBob) {
+          console.error("AskBob engine failed to load");
+          return;
+        }
+        const instance = await AskBob.init({
+          chatbotUid: "e0ba5b3a-082b-47a0-b0f1-ec99b1038948",
+          clientUid: "d9dc6f59-def7-4127-b231-e9d94ce630b5",
+          tenantUid: "d52e359e-2d7e-4579-bd2e-87e60dfc2f77",
+          tenantUrl: "https://ruoff-mortgage.askbobai.com",
+          mode: "embedded",
+        });
+        await instance.init();
+        window.askBobInstance = instance;
+      })();
+    </script>
   </body>
 </html>
