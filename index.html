@@ -33,37 +33,37 @@
         --ruoff-navy-80: #1c4057;
         --ruoff-teal: #1f8a9d;
 
-        /* Page theme */
-        --bg-color: #ffffff;
-        --text-color: #11202d;
-        --text-secondary: #5a6773;
+        /* Dark page theme (Ruoff-flavored askbob) */
+        --bg-color: #091c2d;
+        --text-color: #ffffff;
+        --text-secondary: rgba(255, 255, 255, 0.8);
         --primary-color: var(--ruoff-navy);
-        --submit-btn-color: var(--primary-color);
-        --scheme: light;
+        --submit-btn-color: var(--ruoff-teal);
+        --scheme: dark;
 
-        --input-bg: #ffffff;
-        --input-border: #e5e7eb;
-        --muted-color: #9ca3af;
-        --muted-hover: #374151;
-        --skeleton-bg: #f1f5f9;
+        --input-bg: rgba(255, 255, 255, 0.18);
+        --input-border: rgba(255, 255, 255, 0.25);
+        --muted-color: rgba(255, 255, 255, 0.5);
+        --muted-hover: #ffffff;
+        --skeleton-bg: rgba(255, 255, 255, 0.08);
         --assistant-bg: transparent;
-        --assistant-color: var(--text-color);
+        --assistant-color: #ffffff;
 
-        --modal-bg: #f0f4f8;
-        --modal-input-bg: #ffffff;
-        --modal-input-border: #e2e8f0;
-        --modal-text: var(--text-color);
-        --modal-text-secondary: var(--text-secondary);
-        --modal-surface: #f8fafc;
-        --modal-divider-text: #9ca3af;
-        --modal-disabled-bg: #e5e7eb;
-        --thinking-color: #6b7280;
-        --theme-prose-bold: var(--text-color);
+        --modal-bg: #091c2d;
+        --modal-input-bg: rgba(255, 255, 255, 0.15);
+        --modal-input-border: rgba(255, 255, 255, 0.2);
+        --modal-text: #ffffff;
+        --modal-text-secondary: rgba(255, 255, 255, 0.65);
+        --modal-surface: rgba(255, 255, 255, 0.08);
+        --modal-divider-text: rgba(255, 255, 255, 0.35);
+        --modal-disabled-bg: rgba(255, 255, 255, 0.1);
+        --thinking-color: rgba(255, 255, 255, 0.7);
+        --theme-prose-bold: #ffffff;
         --theme-prose-links: var(--ruoff-teal);
-        --user-bubble-bg: var(--ruoff-navy);
+        --user-bubble-bg: var(--ruoff-navy-80);
         --user-bubble-color: #ffffff;
         --trending-icon-color: var(--ruoff-teal);
-        --scroll-btn-bg: var(--ruoff-navy);
+        --scroll-btn-bg: var(--ruoff-navy-80);
 
         --header-height: 80px;
       }
@@ -182,20 +182,20 @@
         line-height: 1.5;
       }
 
-      /* Brand wash — navy halo behind the header, teal accent bottom-right */
+      /* Brand wash — soft teal glow top, warm navy lift bottom-right */
       body::before {
         content: "";
         position: fixed;
         inset: 0;
         background: radial-gradient(
-            ellipse 90% 55% at 50% -20%,
-            rgba(19, 46, 66, 0.14) 0%,
-            rgba(19, 46, 66, 0.05) 45%,
+            ellipse 90% 55% at 50% -15%,
+            rgba(31, 138, 157, 0.18) 0%,
+            rgba(31, 138, 157, 0.06) 45%,
             transparent 70%
           ),
           radial-gradient(
             ellipse 60% 40% at 85% 115%,
-            rgba(31, 138, 157, 0.08) 0%,
+            rgba(28, 64, 87, 0.35) 0%,
             transparent 65%
           );
         pointer-events: none;
@@ -325,7 +325,6 @@
 
         /* Input */
         --askbob-color-input-text: var(--text-color);
-        --askbob-color-input-placeholder: var(--text-secondary);
         --askbob-input-bg: var(--input-bg);
         --askbob-radius-input: 100px;
         --askbob-padding-input: 14px 24px;
@@ -336,7 +335,8 @@
         --askbob-color-muted: var(--muted-color);
         --askbob-color-muted-hover: var(--muted-hover);
         --askbob-trending-icon-color: var(--trending-icon-color);
-        --askbob-color-prompts-hover-bg: rgba(19, 46, 66, 0.06);
+        --askbob-color-prompts-hover-bg: rgba(255, 255, 255, 0.08);
+        --askbob-color-input-placeholder: rgba(255, 255, 255, 0.55);
         --askbob-radius-prompts-item: 100px;
 
         /* Wrapper — auto height so empty slots don't take space */
@@ -496,7 +496,7 @@
       /* Trending pills */
       #askbob-trending-questions button:hover,
       [id^="askbob-trending-"] button:hover {
-        background: rgba(19, 46, 66, 0.06) !important;
+        background: rgba(255, 255, 255, 0.08) !important;
         box-shadow: none !important;
       }
 
