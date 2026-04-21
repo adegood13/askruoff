@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- build: debug-banner-v2 -->
+    <!-- build: auto-bootstrap-v3 -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Ask Ruoff</title>
@@ -332,116 +332,71 @@
       async
     ></script>
 
-    <!-- Initialize the AskBob widget once the engine has loaded. -->
+    <!--
+      Rely on the script tag's data-* attributes to auto-bootstrap the widget.
+      No manual AskBob.init() call — two mounts conflict.
+    -->
     <script>
-      (async () => {
-        const banner = document.getElementById("debug-banner");
-        const titleEl = document.getElementById("debug-title");
-        const detailEl = document.getElementById("debug-detail");
-        const setBanner = (state, title, detail) => {
+      (function () {
+        var banner = document.getElementById("debug-banner");
+        var titleEl = document.getElementById("debug-title");
+        var detailEl = document.getElementById("debug-detail");
+        function setBanner(state, title, detail) {
           banner.dataset.state = state;
           titleEl.textContent = title;
           detailEl.textContent = detail;
-        };
+        }
 
-        // Watch the engine script for load/error events.
-        const engineScript = document.querySelector(
+        var script = document.querySelector(
           'script[src*="askbobai.com/engine.js"]'
         );
-        if (engineScript) {
-          engineScript.addEventListener("error", () => {
+        if (script) {
+          script.addEventListener("load", function () {
+            setBanner(
+              "info",
+              "engine.js loaded",
+              "typeof window.AskBob = " + typeof window.AskBob
+            );
+          });
+          script.addEventListener("error", function () {
             setBanner(
               "error",
-              "engine.js failed to load",
-              "Network or CORS error fetching https://ruoff-mortgage.askbobai.com/engine.js — check DevTools → Network."
+              "engine.js FAILED to load",
+              "Check DevTools → Network for engine.js status."
             );
           });
         }
 
-        const start = Date.now();
-        while (!window.AskBob && Date.now() - start < 15000) {
-          await new Promise((r) => setTimeout(r, 50));
-        }
-        if (!window.AskBob) {
-          setBanner(
-            "error",
-            "AskBob engine did not initialize",
-            "Engine script loaded, but window.AskBob is undefined after 15s. Tenant may be blocking this origin."
-          );
-          console.error("AskBob engine failed to load");
-          return;
-        }
-
-        setBanner(
-          "info",
-          "Engine loaded, initializing widget…",
-          "Calling AskBob.init() with tenant config."
-        );
-
-        let instance;
-        try {
-          instance = await AskBob.init({
-            chatbotUid: "e0ba5b3a-082b-47a0-b0f1-ec99b1038948",
-            clientUid: "d9dc6f59-def7-4127-b231-e9d94ce630b5",
-            tenantUid: "d52e359e-2d7e-4579-bd2e-87e60dfc2f77",
-            tenantUrl: "https://ruoff-mortgage.askbobai.com",
-            mode: "embedded",
-            theme: {
-              "--askbob-color-primary": "#132e42",
-              "--askbob-color-surface": "#ffffff",
-              "--askbob-wrapper-shadow": "none",
-              "--askbob-radius": "8px",
-            },
-          });
-        } catch (err) {
-          setBanner("error", "AskBob.init() threw", String(err && err.message || err));
-          console.error(err);
-          return;
-        }
-
-        // ── Events ─────────────────────────────────────────
-        instance.on("message:sent", (event) => {
-          console.log("User asked:", event.data.question);
-        });
-
-        instance.on("streaming:complete", (event) => {
-          console.log("Answer:", event.data.fullAnswer);
-          console.log("Conversation ID:", event.data.conversationId);
-        });
-
-        instance.on("conversation:start", (event) => {
-          localStorage.setItem("lastConversationId", event.data.conversationId);
-        });
-
-        instance.on("share:loaded", (event) => {
-          console.log("Shared conversation:", event.data.conversationId);
-        });
-
-        instance.on("share:not_found", () => {
-          console.warn("Shared conversation not found");
-        });
-
-        instance.onAny((event) => {
-          console.log(event.event, event.data);
-        });
-
-        try {
-          await instance.init();
-        } catch (err) {
-          setBanner("error", "instance.init() threw", String(err && err.message || err));
-          console.error(err);
-          return;
-        }
-
-        window.askBobInstance = instance;
-        setBanner(
-          "ok",
-          "AskBob ready",
-          "Widget mounted. Dismiss this banner with ×."
-        );
-        setTimeout(() => {
-          if (banner.dataset.state === "ok") banner.hidden = true;
-        }, 4000);
+        var start = Date.now();
+        var poll = setInterval(function () {
+          var slotInput = document.getElementById("askbob-primary-input");
+          var slotCanvas = document.getElementById("askbob-answer-canvas");
+          var populated =
+            (slotInput && slotInput.children.length > 0) ||
+            (slotCanvas && slotCanvas.children.length > 0);
+          if (populated) {
+            setBanner(
+              "ok",
+              "Widget rendered into slots",
+              "primary-input children: " +
+                (slotInput ? slotInput.children.length : 0) +
+                ", answer-canvas children: " +
+                (slotCanvas ? slotCanvas.children.length : 0)
+            );
+            clearInterval(poll);
+            return;
+          }
+          if (Date.now() - start > 20000) {
+            setBanner(
+              "error",
+              "Slots still empty after 20s",
+              "window.AskBob = " +
+                typeof window.AskBob +
+                ". Widget may be rendering elsewhere (check body children) or tenant is blocking this origin."
+            );
+            clearInterval(poll);
+          }
+        }, 500);
       })();
     </script>
   </body>
