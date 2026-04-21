@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- build: spec-aligned-v5 -->
+    <!-- build: ruoff-embed-v1 -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Ask Ruoff</title>
@@ -9,6 +9,14 @@
       name="description"
       content="Ask Ruoff — instant, grounded answers on mortgage guidelines, overlays, and policy."
     />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Ask Ruoff" />
+    <meta
+      property="og:description"
+      content="Ask Ruoff — instant, grounded answers on mortgage guidelines, overlays, and policy."
+    />
+
     <link rel="icon" href="https://www.ruoff.com/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,72 +24,207 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <style>
+
+    <!-- Theme tokens + loader -->
+    <style id="theme-init">
       :root {
+        /* Ruoff brand */
         --ruoff-navy: #132e42;
         --ruoff-navy-80: #1c4057;
         --ruoff-teal: #1f8a9d;
-        --surface: #ffffff;
-        --surface-muted: #f7f8fa;
-        --border: #e6e8ec;
-        --text: #11202d;
-        --text-muted: #5a6773;
-        --radius-sm: 8px;
-        --radius-md: 12px;
-        --radius-lg: 20px;
-        --header-height: 80px;
-      }
 
-      * {
-        box-sizing: border-box;
+        /* Page theme */
+        --bg-color: #ffffff;
+        --text-color: #11202d;
+        --text-secondary: #5a6773;
+        --primary-color: var(--ruoff-navy);
+        --submit-btn-color: var(--primary-color);
+        --scheme: light;
+
+        --input-bg: #ffffff;
+        --input-border: #e5e7eb;
+        --muted-color: #9ca3af;
+        --muted-hover: #374151;
+        --skeleton-bg: #f1f5f9;
+        --assistant-bg: transparent;
+        --assistant-color: var(--text-color);
+
+        --modal-bg: #f0f4f8;
+        --modal-input-bg: #ffffff;
+        --modal-input-border: #e2e8f0;
+        --modal-text: var(--text-color);
+        --modal-text-secondary: var(--text-secondary);
+        --modal-surface: #f8fafc;
+        --modal-divider-text: #9ca3af;
+        --modal-disabled-bg: #e5e7eb;
+        --thinking-color: #6b7280;
+        --theme-prose-bold: var(--text-color);
+        --theme-prose-links: var(--ruoff-teal);
+        --user-bubble-bg: var(--ruoff-navy);
+        --user-bubble-color: #ffffff;
+        --trending-icon-color: var(--ruoff-teal);
+        --scroll-btn-bg: var(--ruoff-navy);
+
+        --header-height: 80px;
       }
 
       html,
       body {
+        background: var(--bg-color) !important;
+        background-attachment: fixed !important;
+        color: var(--text-color) !important;
+        color-scheme: var(--scheme);
+        height: 100dvh;
+      }
+
+      #chatbot-container {
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+
+      #chatbot-container.ready {
+        opacity: 1;
+      }
+
+      /* Loading skeleton */
+      #chatbot-loader {
+        position: fixed;
+        inset: var(--header-height) 0 0 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding-bottom: 15vh;
+        gap: 16px;
+        pointer-events: none;
+        opacity: 1;
+        transition: opacity 0.4s ease;
+      }
+
+      #chatbot-loader.hidden {
+        opacity: 0;
+      }
+
+      .skeleton-line {
+        border-radius: 8px;
+        background: linear-gradient(
+          90deg,
+          var(--input-bg, #e8e8e8) 25%,
+          var(--input-border, #d0d0d0) 50%,
+          var(--input-bg, #e8e8e8) 75%
+        );
+        background-size: 200% 100%;
+        animation: skeleton-shimmer 1.4s infinite;
+      }
+
+      .skeleton-title {
+        width: min(420px, 70vw);
+        height: 28px;
+      }
+
+      .skeleton-subtitle {
+        width: min(300px, 50vw);
+        height: 16px;
+        opacity: 0.7;
+      }
+
+      .skeleton-input {
+        width: min(600px, calc(100vw - 48px));
+        height: 56px;
+        border-radius: 28px;
+        margin-top: 8px;
+      }
+
+      .skeleton-chips {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: min(600px, calc(100vw - 48px));
+      }
+
+      .skeleton-chip {
+        height: 34px;
+        border-radius: 17px;
+        flex: 0 0 auto;
+      }
+
+      @keyframes skeleton-shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+    </style>
+
+    <style>
+      * {
         margin: 0;
         padding: 0;
-        height: 100%;
+        box-sizing: border-box;
       }
 
       body {
         font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
           Roboto, Helvetica, Arial, sans-serif;
-        color: var(--text);
-        background: #091c2d;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100dvh;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: var(--bg-color);
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         line-height: 1.5;
       }
 
-      .app {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
+      /* Subtle brand texture */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(
+            ellipse 80% 50% at 50% -10%,
+            rgba(19, 46, 66, 0.06) 0%,
+            transparent 60%
+          ),
+          radial-gradient(
+            ellipse 60% 40% at 80% 110%,
+            rgba(31, 138, 157, 0.05) 0%,
+            transparent 60%
+          );
+        pointer-events: none;
+        z-index: 0;
       }
 
+      /* ── Site header (Ruoff) ── */
       .site-header {
+        align-self: stretch;
         position: sticky;
         top: 0;
-        z-index: 20;
+        z-index: 2147483647;
         height: var(--header-height);
         display: flex;
         align-items: center;
         justify-content: space-between;
         padding: 0 24px;
-        background: var(--surface);
-        border-bottom: 1px solid var(--border);
+        background: #ffffff;
+        border-bottom: 1px solid var(--input-border);
       }
 
       .brand {
         display: inline-flex;
         align-items: center;
-        gap: 10px;
         text-decoration: none;
         color: var(--ruoff-navy);
       }
 
       .brand-logo {
-        height: 40px;
+        height: 56px;
         width: auto;
         display: block;
       }
@@ -95,7 +238,7 @@
       .askbob-link {
         display: inline-flex;
         align-items: center;
-        border-radius: var(--radius-sm);
+        border-radius: 8px;
         text-decoration: none;
       }
 
@@ -108,7 +251,7 @@
         height: 32px;
         width: auto;
         display: block;
-        border-radius: var(--radius-sm);
+        border-radius: 8px;
       }
 
       .btn {
@@ -117,7 +260,7 @@
         gap: 8px;
         height: 36px;
         padding: 0 14px;
-        border-radius: var(--radius-sm);
+        border-radius: 8px;
         border: 1px solid transparent;
         font: inherit;
         font-weight: 500;
@@ -139,123 +282,503 @@
         border-color: var(--ruoff-navy-80);
       }
 
-      .main {
-        flex: 1 1 auto;
+      /* ── Chatbot container — ported from reference, Ruoff-tokened ── */
+      #chatbot-container {
+        position: relative;
+        z-index: 1000;
+        max-width: 852px;
+        width: calc(100% - 32px);
+        margin: auto;
+        height: auto;
         display: flex;
         flex-direction: column;
-        align-items: center;
-        width: 100%;
+        gap: 20px;
+        transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+
+        /* SDK tokens */
+        --askbob-color-primary: var(--primary-color);
+        --askbob-font-family: "Inter", -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+        /* Input */
+        --askbob-color-input-text: var(--text-color);
+        --askbob-color-input-placeholder: var(--text-secondary);
+        --askbob-input-bg: var(--input-bg);
+        --askbob-radius-input: 100px;
+        --askbob-padding-input: 14px 24px;
+        --askbob-input-focus-shadow: 0 0 0 2px var(--primary-color),
+          0 4px 20px rgba(0, 0, 0, 0.08);
+
+        /* Icons */
+        --askbob-color-muted: var(--muted-color);
+        --askbob-color-muted-hover: var(--muted-hover);
+        --askbob-trending-icon-color: var(--trending-icon-color);
+        --askbob-color-prompts-hover-bg: rgba(19, 46, 66, 0.06);
+        --askbob-radius-prompts-item: 100px;
+
+        /* Wrapper — auto height so empty slots don't take space */
+        --askbob-wrapper-shadow: none;
+        --askbob-wrapper-height: auto;
+        --askbob-wrapper-overflow: visible;
+        --askbob-followup-shadow: 0 -1px 0 0 var(--input-border);
+        --askbob-skeleton-bg: var(--skeleton-bg);
+
+        /* Bubbles */
+        --askbob-bubble-user-bg: var(--user-bubble-bg);
+        --askbob-bubble-user-color: var(--user-bubble-color);
+        --askbob-bubble-user-min-width: 150px;
+        --askbob-bubble-user-max-width: 75%;
+        --askbob-bubble-user-radius: 20px;
+        --askbob-bubble-assistant-bg: var(--assistant-bg);
+        --askbob-bubble-assistant-color: var(--assistant-color);
+        --askbob-bubble-assistant-min-width: 0;
+        --askbob-bubble-assistant-max-width: 100%;
+
+        --askbob-submit-btn-bg: var(--submit-btn-color);
+        --askbob-thinking-text-color: var(--thinking-color);
+        --askbob-thinking-dot-color: var(--thinking-color);
+
+        /* Modal */
+        --askbob-modal-bg: var(--modal-bg);
+        --askbob-modal-input-bg: var(--modal-input-bg);
+        --askbob-modal-input-border: var(--modal-input-border);
+        --askbob-modal-btn-bg: var(--askbob-bubble-user-bg);
+        --askbob-modal-btn-color: var(--askbob-bubble-user-color);
+        --askbob-modal-divider-text-color: var(--modal-divider-text);
+        --askbob-markdown-strong-color: var(--theme-prose-bold);
+        --askbob-markdown-link-color: var(--theme-prose-links);
+        --askbob-markdown-link-color-hover: var(--theme-prose-links);
+        --askbob-color-disabled-bg: var(--modal-disabled-bg);
+        --askbob-color-text: var(--modal-text);
+        --askbob-color-text-secondary: var(--modal-text-secondary);
+        --askbob-color-surface: var(--modal-surface);
+        --askbob-color-border: var(--modal-input-border);
+
+        --askbob-modal-preview-radius: 20px;
+        --askbob-modal-preview-height: 240px;
+
+        /* Canvas header / scrollbar / scroll button */
+        --askbob-canvas-header-bg: var(--bg-color);
+        --askbob-scrollbar-color: var(--input-border);
+        --askbob-scrollbar-color-hover: var(--muted-color);
+        --askbob-scrollbar-width: 4px;
+        --askbob-scroll-btn-bg: var(--scroll-btn-bg);
+        --askbob-scroll-btn-radius: 50%;
       }
 
-      .container {
-        width: 100%;
-        max-width: 820px;
-        padding: 40px 24px 48px;
-        margin: 0 auto;
+      /* Expand when chat starts */
+      .askbob-conversation-active #chatbot-container {
+        height: calc(100dvh - var(--header-height)) !important;
+        max-width: 852px;
+        width: calc(100% - 32px);
+        justify-content: flex-start !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
       }
 
-      #content-slot {
-        min-height: calc(
-          100vh - var(--header-height) - var(--footer-height, 56px) - 88px
-        );
+      /* Share-link pages open into conversation mode — keep subtitle hidden */
+      [data-share-link] .askbob-subtitle {
+        opacity: 0 !important;
+        visibility: hidden !important;
       }
 
-      .site-footer {
-        --footer-height: 56px;
-        height: var(--footer-height);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0 24px;
-        background: var(--surface);
-        border-top: 1px solid var(--border);
-        color: var(--text-muted);
-        font-size: 13px;
+      .askbob-conversation-active #chatbot-container.ready .askbob-subtitle {
+        opacity: 1 !important;
+        visibility: visible !important;
+        display: none !important;
       }
 
-      @media (max-width: 640px) {
+      .askbob-conversation-active #chatbot-container .askbob-title,
+      .askbob-conversation-active #chatbot-container .askbob-subtitle,
+      .askbob-conversation-active #askbob-trending-questions,
+      .askbob-conversation-active #askbob-primary-input {
+        display: none !important;
+      }
+
+      /* Canvas fills remaining space and scrolls */
+      #askbob-answer-canvas,
+      [data-askbob-group="full"] #askbob-answer-canvas {
+        flex: 1 1 auto !important;
+        width: 100% !important;
+        overflow-y: auto !important;
+        padding: 20px 0 40px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 0 !important;
+        scrollbar-gutter: stable;
+      }
+
+      /* Input bars anchored to the flex column */
+      #askbob-primary-input,
+      #askbob-follow-up-input {
+        flex: 0 0 auto !important;
+        width: 100% !important;
+        padding: 0 0 24px !important;
+        background: transparent !important;
+        border-top: none !important;
+        z-index: 10 !important;
+        position: relative !important;
+      }
+
+      .askbob-conversation-active #askbob-answer-canvas > div {
+        padding-bottom: 24px !important;
+      }
+
+      /* Thinking dots */
+      .conversation-v3-thinking span {
+        color: var(--askbob-thinking-text-color, #9ca3af) !important;
+      }
+
+      .conversation-v3-thinking .conversation-v3-thinking-dot {
+        background-color: var(--askbob-thinking-dot-color, #9ca3af) !important;
+      }
+
+      /* Prose overrides */
+      #askbob-answer-canvas .prose,
+      #askbob-answer-canvas .x-markdown {
+        --tw-prose-body: var(--askbob-color-text) !important;
+        --tw-prose-bold: var(--theme-prose-bold) !important;
+        --tw-prose-links: var(--theme-prose-links) !important;
+        --tw-prose-bullets: var(--text-secondary) !important;
+        --tw-prose-counters: var(--text-secondary) !important;
+      }
+
+      #askbob-answer-canvas [data-bubble-type="user"] .prose,
+      #askbob-answer-canvas [data-bubble-type="user"] .x-markdown {
+        --tw-prose-body: var(--askbob-bubble-user-color, #ffffff) !important;
+        --tw-prose-bold: var(--askbob-bubble-user-color, #ffffff) !important;
+      }
+
+      #askbob-answer-canvas a,
+      #askbob-answer-canvas .prose a,
+      #askbob-answer-canvas .x-markdown a {
+        color: var(--theme-prose-links) !important;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+
+      .prose
+        :where(strong):not(
+          :where([class~="not-prose"], [class~="not-prose"] *)
+        ) {
+        color: unset !important;
+      }
+
+      #askbob-answer-canvas strong,
+      #askbob-answer-canvas .prose strong,
+      #askbob-answer-canvas .x-markdown strong {
+        color: var(--theme-prose-bold, inherit) !important;
+      }
+
+      /* Trending pills */
+      #askbob-trending-questions button:hover,
+      [id^="askbob-trending-"] button:hover {
+        background: rgba(19, 46, 66, 0.06) !important;
+        box-shadow: none !important;
+      }
+
+      #askbob-trending-questions > div > h3,
+      [id^="askbob-trending-"] h3 {
+        font-size: 12px !important;
+        color: var(--text-secondary) !important;
+        margin-bottom: 12px !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.06em !important;
+      }
+
+      /* Input host drop-shadow follows pill shape */
+      #askbob-primary-input,
+      #askbob-follow-up-input {
+        transition: filter 0.2s ease;
+        filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.07))
+          drop-shadow(0 1px 2px rgba(0, 0, 0, 0.04));
+      }
+
+      #askbob-primary-input:hover,
+      #askbob-follow-up-input:hover {
+        filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.11))
+          drop-shadow(0 1px 4px rgba(0, 0, 0, 0.06));
+      }
+
+      #askbob-primary-input:focus-within,
+      #askbob-follow-up-input:focus-within {
+        filter: drop-shadow(
+            0 0 10px color-mix(in srgb, var(--primary-color) 40%, transparent)
+          )
+          drop-shadow(0 4px 16px rgba(0, 0, 0, 0.08));
+      }
+
+      .askbob-title {
+        font-size: 30px;
+        font-weight: 700;
+        color: var(--text-color);
+        text-align: center;
+        margin: 0;
+        line-height: 1.2;
+      }
+
+      .askbob-subtitle {
+        font-size: 15px;
+        font-weight: 400;
+        color: var(--text-secondary);
+        text-align: center;
+        margin-top: 4px;
+        margin-bottom: 24px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.5;
+      }
+
+      @media (max-width: 768px) {
         .site-header {
           padding: 0 16px;
         }
-        .container {
-          padding: 24px 16px 32px;
-        }
         .brand-logo {
-          height: 32px;
+          height: 44px;
         }
         .askbob-logo {
           height: 26px;
+        }
+        #chatbot-container {
+          width: calc(100% - 24px);
+        }
+        .askbob-conversation-active #chatbot-container {
+          width: 100%;
+        }
+        .askbob-title {
+          font-size: 24px;
+        }
+        .askbob-subtitle {
+          font-size: 13px;
+        }
+        #askbob-follow-up-input {
+          margin-inline: 16px !important;
+          width: calc(100% - 32px) !important;
         }
       }
     </style>
   </head>
   <body>
-    <div class="app">
-      <header class="site-header" role="banner">
+    <header class="site-header" role="banner">
+      <a
+        class="brand"
+        href="https://www.ruoff.com/"
+        aria-label="Ruoff Mortgage"
+      >
+        <img
+          class="brand-logo"
+          src="assets/ruoff-logo.png"
+          alt="Ruoff Mortgage"
+        />
+      </a>
+
+      <div class="header-actions">
         <a
-          class="brand"
-          href="https://www.ruoff.com/"
-          aria-label="Ruoff Mortgage"
+          class="askbob-link"
+          href="https://www.askbobai.com"
+          target="_blank"
+          rel="noopener"
+          aria-label="AskBobAI"
         >
           <img
-            class="brand-logo"
-            src="assets/ruoff-logo.png"
-            alt="Ruoff Mortgage"
-            style="height: 70px"
+            class="askbob-logo"
+            src="assets/askbobai-logo.png"
+            alt="AskBobAI"
           />
         </a>
+        <button class="btn btn-primary" type="button" id="reset-btn">
+          Reset
+        </button>
+      </div>
+    </header>
 
-        <div class="header-actions">
-          <a
-            class="askbob-link"
-            href="https://www.askbobai.com"
-            aria-label="AskBobAI"
-          >
-            <img
-              class="askbob-logo"
-              src="assets/askbobai-logo.png"
-              alt="AskBobAI"
-            />
-          </a>
-          <button class="btn btn-primary" type="button" id="reset-btn">
-            Reset
-          </button>
-        </div>
-      </header>
-
-      <main class="main" role="main">
-        <div class="container">
-          <div id="content-slot" aria-live="polite">
-            <!-- AskBob slot divs — the SDK finds them by ID. -->
-            <div id="my-askbob-widget">
-              <h2 class="askbob-title" style="display: none">
-                Ask me anything about agency guidelines...
-              </h2>
-              <div id="askbob-primary-input"></div>
-              <div id="askbob-trending-questions"></div>
-              <div id="askbob-answer-canvas"></div>
-              <div id="askbob-follow-up-input"></div>
-            </div>
-          </div>
-        </div>
-      </main>
-
-      <footer class="site-footer" role="contentinfo">
-        <span
-          >&copy; <span id="year"></span> Ruoff Mortgage. All rights
-          reserved.</span
-        >
-      </footer>
+    <div id="chatbot-loader" aria-hidden="true">
+      <div class="skeleton-line skeleton-title"></div>
+      <div class="skeleton-line skeleton-subtitle"></div>
+      <div class="skeleton-line skeleton-input"></div>
+      <div class="skeleton-chips">
+        <div class="skeleton-line skeleton-chip" style="width: 130px"></div>
+        <div class="skeleton-line skeleton-chip" style="width: 110px"></div>
+        <div class="skeleton-line skeleton-chip" style="width: 150px"></div>
+      </div>
     </div>
 
+    <div id="chatbot-container" class="container-box">
+      <div class="chat-heading">
+        <h2 class="askbob-title" style="margin-bottom: 10px">
+          Ask Ruoff anything about mortgage guidelines...
+        </h2>
+        <p class="askbob-subtitle" style="margin-bottom: 10px">
+          Grounded answers on agency guidelines, Ruoff overlays, and internal
+          policy.
+        </p>
+      </div>
+
+      <div id="askbob-primary-input"></div>
+      <div id="askbob-trending-questions" style="margin-top: -30px"></div>
+      <div id="askbob-answer-canvas"></div>
+      <div id="askbob-follow-up-input"></div>
+    </div>
+
+    <!-- Portal bridge: mirror SDK tokens onto any nodes the SDK appends to <body> (modals, popovers) -->
     <script>
-      document.getElementById("year").textContent = new Date().getFullYear();
+      (function () {
+        const ASKBOB_VARS = [
+          "--askbob-color-primary",
+          "--askbob-font-family",
+          "--askbob-color-input-text",
+          "--askbob-color-input-placeholder",
+          "--askbob-input-bg",
+          "--askbob-radius-input",
+          "--askbob-modal-bg",
+          "--askbob-modal-input-bg",
+          "--askbob-modal-input-border",
+          "--askbob-modal-btn-bg",
+          "--askbob-modal-btn-color",
+          "--askbob-modal-divider-text-color",
+          "--askbob-color-disabled-bg",
+          "--askbob-color-text",
+          "--askbob-color-text-secondary",
+          "--askbob-color-surface",
+          "--askbob-color-border",
+          "--askbob-submit-btn-bg",
+          "--askbob-bubble-user-bg",
+          "--askbob-bubble-user-color",
+          "--askbob-bubble-assistant-bg",
+          "--askbob-bubble-assistant-color",
+          "--askbob-modal-preview-radius",
+          "--askbob-modal-preview-height",
+        ];
+
+        const SKIP_IDS = new Set(["chatbot-container", "chatbot-loader"]);
+
+        function syncVars(target) {
+          const container = document.getElementById("chatbot-container");
+          if (!container) return;
+          const computed = getComputedStyle(container);
+          ASKBOB_VARS.forEach((v) => {
+            const val = computed.getPropertyValue(v).trim();
+            if (val) target.style.setProperty(v, val);
+          });
+        }
+
+        window.syncAllPortals = function () {
+          document.body.childNodes.forEach((node) => {
+            if (node.nodeType === 1 && !SKIP_IDS.has(node.id)) {
+              syncVars(node);
+            }
+          });
+        };
+
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach((m) => {
+            m.addedNodes.forEach((node) => {
+              if (node.nodeType === 1 && !SKIP_IDS.has(node.id)) {
+                syncVars(node);
+              }
+            });
+          });
+        });
+
+        observer.observe(document.body, { childList: true });
+      })();
+    </script>
+
+    <!-- Share-link marker (lets CSS hide subtitle on ?abaic= / /abaic/ pages) -->
+    <script>
+      (function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const abaicFromQuery = urlParams.get("abaic");
+        const abaicPathMatch = window.location.pathname.match(
+          /\/abaic\/([^/]+)/
+        );
+        const abaicShortcode =
+          abaicFromQuery || (abaicPathMatch && abaicPathMatch[1]) || "";
+        if (abaicShortcode) {
+          document.documentElement.setAttribute("data-share-link", "");
+        }
+      })();
+    </script>
+
+    <!-- Reveal the chatbot on askbob:ready; auto-scroll the canvas as content streams -->
+    <script>
+      (function () {
+        const containerEl = document.getElementById("chatbot-container");
+        const loaderEl = document.getElementById("chatbot-loader");
+        const showChatbot = () => {
+          if (containerEl && !containerEl.classList.contains("ready")) {
+            containerEl.classList.add("ready");
+            loaderEl?.classList.add("hidden");
+          }
+        };
+        document.addEventListener("askbob:ready", showChatbot);
+        setTimeout(showChatbot, 2500);
+
+        const scrollToBottom = () => {
+          const canvas = document.getElementById("askbob-answer-canvas");
+          if (canvas) {
+            canvas.scrollTo({
+              top: canvas.scrollHeight,
+              behavior: "smooth",
+            });
+          }
+        };
+
+        const canvasEl = document.getElementById("askbob-answer-canvas");
+        if (canvasEl) {
+          const observer = new MutationObserver(scrollToBottom);
+          observer.observe(canvasEl, {
+            childList: true,
+            subtree: true,
+            characterData: true,
+          });
+        }
+      })();
+    </script>
+
+    <!-- Input radius observer: pill when single-line, rounded-corner when multi-line -->
+    <script>
+      (function () {
+        const RADIUS_PILL = "200px";
+        const RADIUS_MULTI = "28px";
+        const SINGLE_LINE_HEIGHT = 60;
+
+        function updateRadius(host) {
+          const container = document.getElementById("chatbot-container");
+          if (!container) return;
+          container.style.setProperty(
+            "--askbob-radius-input",
+            host.offsetHeight > SINGLE_LINE_HEIGHT ? RADIUS_MULTI : RADIUS_PILL
+          );
+        }
+
+        function observeInputs() {
+          ["askbob-primary-input", "askbob-follow-up-input"].forEach((id) => {
+            const host = document.getElementById(id);
+            if (!host || host.__roWired) return;
+            host.__roWired = true;
+            const ro = new ResizeObserver(() => updateRadius(host));
+            ro.observe(host);
+          });
+        }
+
+        document.addEventListener("askbob:ready", observeInputs);
+        setTimeout(observeInputs, 3000);
+      })();
+    </script>
+
+    <!-- Reset button -->
+    <script>
       document.getElementById("reset-btn").addEventListener("click", () => {
         window.location.reload();
       });
     </script>
 
-    <!-- AskBob embed — do not modify the script tag. -->
+    <!-- AskBob SDK — do not modify the script tag. -->
     <script
       src="https://ruoff-mortgage.askbobai.com/engine.js"
       data-chatbot-uid="e0ba5b3a-082b-47a0-b0f1-ec99b1038948"
@@ -266,51 +789,22 @@
       async
     ></script>
 
-    <!--
-      Option A — AskBob.init() (recommended per spec).
-      Wait for the engine script to load, then initialize the widget.
-    -->
+    <!-- Share-link fallback: if an invalid ?abaic= loads, clear the marker so the page returns to idle -->
     <script>
-      (async () => {
-        const script = document.querySelector(
-          'script[src*="askbobai.com/engine.js"]'
-        );
-        if (!script) return;
+      (function () {
+        if (!document.documentElement.hasAttribute("data-share-link")) return;
 
-        await new Promise((resolve, reject) => {
-          if (window.AskBob) return resolve();
-          script.addEventListener("load", resolve, { once: true });
-          script.addEventListener("error", reject, { once: true });
-        });
+        var interval = setInterval(function () {
+          var instances =
+            window.AskBobSDK && window.AskBobSDK.getInstances();
+          if (!instances || !instances.length) return;
+          clearInterval(interval);
 
-        const instance = await AskBob.init({
-          chatbotUid: "e0ba5b3a-082b-47a0-b0f1-ec99b1038948",
-          clientUid: "d9dc6f59-def7-4127-b231-e9d94ce630b5",
-          tenantUid: "d52e359e-2d7e-4579-bd2e-87e60dfc2f77",
-          tenantUrl: "https://ruoff-mortgage.askbobai.com",
-          mode: "embedded",
-        });
-
-        instance.on("ready", () => console.log("Widget ready"));
-        instance.on("message:sent", (e) =>
-          console.log("User asked:", e.data.question)
-        );
-        instance.on("streaming:complete", (e) => {
-          console.log("Answer:", e.data.fullAnswer);
-          console.log("Conversation ID:", e.data.conversationId);
-        });
-        instance.on("conversation:start", (e) => {
-          localStorage.setItem("lastConversationId", e.data.conversationId);
-        });
-        instance.on("share:loaded", (e) =>
-          console.log("Shared conversation:", e.data.conversationId)
-        );
-        instance.on("share:not_found", () =>
-          console.warn("Shared conversation not found")
-        );
-
-        await instance.init();
-        window.askBobInstance = instance;
+          var instance = instances[0];
+          instance.on("share:not_found", function () {
+            document.documentElement.removeAttribute("data-share-link");
+          });
+        }, 100);
       })();
     </script>
   </body>
