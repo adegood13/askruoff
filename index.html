@@ -279,7 +279,40 @@
           tenantUid: "d52e359e-2d7e-4579-bd2e-87e60dfc2f77",
           tenantUrl: "https://ruoff-mortgage.askbobai.com",
           mode: "embedded",
+          theme: {
+            "--askbob-color-primary": "#132e42",
+            "--askbob-color-surface": "#ffffff",
+            "--askbob-wrapper-shadow": "none",
+            "--askbob-radius": "8px",
+          },
         });
+
+        // ── Events ─────────────────────────────────────────
+        instance.on("message:sent", (event) => {
+          console.log("User asked:", event.data.question);
+        });
+
+        instance.on("streaming:complete", (event) => {
+          console.log("Answer:", event.data.fullAnswer);
+          console.log("Conversation ID:", event.data.conversationId);
+        });
+
+        instance.on("conversation:start", (event) => {
+          localStorage.setItem("lastConversationId", event.data.conversationId);
+        });
+
+        instance.on("share:loaded", (event) => {
+          console.log("Shared conversation:", event.data.conversationId);
+        });
+
+        instance.on("share:not_found", () => {
+          console.warn("Shared conversation not found");
+        });
+
+        instance.onAny((event) => {
+          console.log(event.event, event.data);
+        });
+
         await instance.init();
         window.askBobInstance = instance;
       })();
